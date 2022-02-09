@@ -113,47 +113,108 @@ class ConnectFour
 
     private function checkWinner()
     {
-        $res = [];
-        //index for horizontal
-        for ($r = 0; $r < count($this->board); $r++) {
-            if (!empty($this->board[$r])) {
-                for ($c = 0; $c < count($this->board[$r]) - 4; $c++) {
-                    $res[$this->getValueBord($r, $c) . $this->getValueBord($r, $c + 1) . $this->getValueBord($r, $c + 2) . $this->getValueBord($r, $c + 3)] = 1;
+        // vertical
+        for ($c = 0; $c < count($this->board); $c++) {
+            if (!empty($this->board[$c])) {
+                $line = implode($this->board[$c]);
+                if (strpos($line, "1111") !== false) {
+                    $this->_isEnd = true;
+                    $this->idWinner = 1;
+                    return $this->idWinner;
+                }
+                if (strpos($line, "2222") !== false) {
+                    $this->_isEnd = true;
+                    $this->idWinner = 2;
+                    return $this->idWinner;
                 }
             }
         }
-        //index for vertical
-        for ($r = 0; $r < count($this->board) - 4; $r++) {
-            if (!empty($this->board[$r])) {
-                for ($c = 0; $c < count($this->board[$r]); $c++) {
-                    $res[$this->getValueBord($r, $c) . $this->getValueBord($r + 1, $c) . $this->getValueBord($r + 2, $c) . $this->getValueBord($r + 3, $c)] = 1;
+
+        // horizontal
+        for ($c = 0; $c < $this->columns; $c++) {
+            $line = '';
+            for ($r = 0; $r < $this->rows; $r++) {
+                $line .= $this->getValueBord($r, $c);
+            }
+            if (strpos($line, "1111") !== false) {
+                $this->_isEnd = true;
+                $this->idWinner = 1;
+                return $this->idWinner;
+            }
+            if (strpos($line, "2222") !== false) {
+                $this->_isEnd = true;
+                $this->idWinner = 2;
+                return $this->idWinner;
+            }
+        }
+
+        // diagonally
+        for ($c = 0; $c < $this->columns - 2; $c++) {
+            $line = $this->zigzig($c, 0, 1, 1);
+            if (strpos($line, "1111") !== false) {
+                $this->_isEnd = true;
+                $this->idWinner = 1;
+                return $this->idWinner;
+            }
+            if (strpos($line, "2222") !== false) {
+                $this->_isEnd = true;
+                $this->idWinner = 2;
+                return $this->idWinner;
+            }
+        }
+        for ($r = 1; $r < $this->rows - 4; $r++) {
+            $line = $this->zigzig(0, $r, 1, 1);
+            if (strpos($line, "1111") !== false) {
+                $this->_isEnd = true;
+                $this->idWinner = 1;
+                return $this->idWinner;
+            }
+            if (strpos($line, "2222") !== false) {
+                $this->_isEnd = true;
+                $this->idWinner = 2;
+                return $this->idWinner;
+            }
+        }
+        for ($c = 3; $c <= $this->columns; $c++) {
+            $line = $this->zigzig($c, 0, -1, 1);
+            if (strpos($line, "1111") !== false) {
+                $this->_isEnd = true;
+                $this->idWinner = 1;
+                return $this->idWinner;
+            }
+            if (strpos($line, "2222") !== false) {
+                $this->_isEnd = true;
+                $this->idWinner = 2;
+                return $this->idWinner;
+            }
+        }
+        for ($r = 1; $r < $this->rows - 4; $r++) {
+            for ($c = 3; $c <= $this->columns; $c++) {
+                $line = $this->zigzig($c, $r, -1, 1);
+                if (strpos($line, "1111") !== false) {
+                    $this->_isEnd = true;
+                    $this->idWinner = 1;
+                    return $this->idWinner;
+                }
+                if (strpos($line, "2222") !== false) {
+                    $this->_isEnd = true;
+                    $this->idWinner = 2;
+                    return $this->idWinner;
                 }
             }
         }
 
-        //index for diagonally
-        for ($r = 0; $r < $this->rows; $r++) {
-            $vl = 0;
-            $vr = $r;
-            $vlm = 0;
-            $vrm = $this->columns - $r - 1;
-            for ($c = 0; $c < $this->columns; $c++) {
-                $res[$this->getValueBord($vl++, $vr++) . $this->getValueBord($vl++, $vr++) . $this->getValueBord($vl++, $vr++) . $this->getValueBord($vl++, $vr++)] = 1;
-                $res[$this->getValueBord($vlm++, $vrm--) . $this->getValueBord($vlm++, $vrm--) . $this->getValueBord($vlm++, $vrm--) . $this->getValueBord($vlm++, $vrm--)] = 1;
-            }
-
-        }
-
-        if (!empty($res['1111'])) {
-            $this->_isEnd = true;
-            $this->idWinner = 1;
-        }
-        if (!empty($res['2222'])) {
-            $this->_isEnd = true;
-            $this->idWinner = 2;
-        }
 
         return $this->idWinner;
+    }
+
+    private function zigzig($x, $y, $vx = 1, $vy = 1)
+    {
+        if ($x < 0 || $y < 0 || $x > $this->rows || $y > $this->columns) {
+            return '';
+        }
+        return $this->getValueBord($x, $y) . $this->zigzig($x + $vx, $y + $vy, $vx, $vy);
+
     }
 
     private function getValueBord($x, $y)
